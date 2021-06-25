@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <div>
+    <button onclick="get()">获取到优化后的媒体流</button>
+    <video id="rtc">测试</video>
+  </div>
+</body>
+<script>
+  const peer = new RTCPeerConnection(
+    {
+      iceServers: [
+        { urls: "stun:stun.xten.com:3478"},
+      ]
+    }
+  );
+  peer.onicecandidate = e => {
+    if (e.candidate) {
+        socket.send(JSON.stringify({
+            type: 'offer_ice',
+            iceCandidate: e.candidate
+        }));
+    } 
+  };
+   function get(){
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false }) 
+    // 参数表示需要同时获取到音频和视频
+        .then(stream => {
+          // 获取到优化后的媒体流
+          console.log(peer)
+          console.log(stream)
+          let video = document.getElementById('rtc');
+          video.srcObject = stream;
+          stream.getTracks().forEach(track => {
+            peer.addTrack(track, stream);
+        });
+        peer.createOffer().then(offer => {
+            peer.setLocalDescription(offer);
+            offer.toUid = "124sdfsamfiowmofmoqwfmoiwmfoimwoifmaofmwafwafwafwf";
+            console.log(offer)
+            console.log(JSON.stringify(offer))
+            console.log(JSON.parse(JSON.stringify(offer)))
+        });
+        })
+        .catch(err => {
+          // 捕获错误
+          console.log("出现错误")
+          console.log(err)
+        });
+   }
+</script>
+<style>
+
+</style>
+</html>
